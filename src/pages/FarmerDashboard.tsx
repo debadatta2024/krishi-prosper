@@ -1,5 +1,5 @@
-import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
 import CropRecommendation from '@/components/farmer/CropRecommendation';
 import DiseaseDetector from '@/components/farmer/DiseaseDetector';
 import PricePrediction from '@/components/farmer/PricePrediction';
@@ -7,16 +7,33 @@ import WeatherForecast from '@/components/farmer/WeatherForecast';
 import ProfitCalculator from '@/components/farmer/ProfitCalculator';
 import MarketplaceListing from '@/components/farmer/MarketplaceListing';
 import VoiceAssistant from '@/components/VoiceAssistant';
-import { Sprout, Activity, TrendingUp, CloudRain, Calculator, ShoppingBag } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { Sprout, Activity, TrendingUp, CloudRain, Calculator, ShoppingBag, LogOut } from 'lucide-react';
 
 const FarmerDashboard = () => {
+  const { isLoading, signOut } = useAuth("farmer");
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">Loading...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <header className="bg-card border-b sticky top-0 z-40">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-bold text-primary">Krishi AI - Farmer Dashboard</h1>
-            <VoiceAssistant userType="farmer" />
+            <div className="flex items-center gap-2">
+              <VoiceAssistant userType="farmer" />
+              <Button variant="outline" size="sm" onClick={signOut}>
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
+              </Button>
+            </div>
           </div>
         </div>
       </header>

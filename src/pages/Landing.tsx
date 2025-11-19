@@ -114,17 +114,9 @@ const Landing = () => {
             <Button 
               size="lg" 
               className="text-lg px-8 py-6"
-              onClick={() => navigate('/farmer')}
+              onClick={() => navigate('/auth')}
             >
-              Get Started as Farmer
-            </Button>
-            <Button 
-              size="lg" 
-              variant="secondary"
-              className="text-lg px-8 py-6"
-              onClick={() => navigate('/buyer')}
-            >
-              Browse Marketplace
+              Get Started
             </Button>
           </motion.div>
         </div>
