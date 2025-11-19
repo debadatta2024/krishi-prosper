@@ -1,36 +1,18 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
 import Marketplace from '@/components/buyer/Marketplace';
 import Cart from '@/components/buyer/Cart';
 import OrderTracking from '@/components/buyer/OrderTracking';
 import PriceTrends from '@/components/buyer/PriceTrends';
-import { useAuth } from '@/hooks/useAuth';
-import { ShoppingCart, Package, TrendingUp, Store, LogOut } from 'lucide-react';
+import { ShoppingCart, Package, TrendingUp, Store } from 'lucide-react';
 import { CartProvider } from '@/contexts/CartContext';
 
 const BuyerDashboard = () => {
-  const { isLoading, signOut } = useAuth("buyer");
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">Loading...</div>
-      </div>
-    );
-  }
-
   return (
     <CartProvider>
       <div className="min-h-screen bg-background">
         <header className="bg-card border-b sticky top-0 z-40">
           <div className="container mx-auto px-4 py-4">
-            <div className="flex items-center justify-between">
-              <h1 className="text-2xl font-bold text-primary">Krishi AI - Buyer Dashboard</h1>
-              <Button variant="outline" size="sm" onClick={signOut}>
-                <LogOut className="w-4 h-4 mr-2" />
-                Logout
-              </Button>
-            </div>
+            <h1 className="text-2xl font-bold text-primary">Krishi AI - Buyer Dashboard</h1>
           </div>
         </header>
 
