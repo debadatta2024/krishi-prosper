@@ -26,7 +26,39 @@ const WeatherForecast = () => {
         { day: 'Day 6', temp: 29, condition: 'Sunny', rainfall: 5, icon: 'sun' },
         { day: 'Day 7', temp: 30, condition: 'Hot & Sunny', rainfall: 0, icon: 'sun' }
       ],
-      alerts: ['Heavy rainfall expected on Day 3. Take precautions for standing crops.']
+      alerts: ['Heavy rainfall expected on Day 3. Take precautions for standing crops.'],
+      precautions: [
+        {
+          condition: 'Heavy Rain',
+          icon: 'rain',
+          actions: [
+            'Ensure proper drainage in fields to prevent waterlogging',
+            'Harvest mature crops before rain if possible',
+            'Cover stored grains and equipment',
+            'Check irrigation channels for blockages'
+          ]
+        },
+        {
+          condition: 'High Temperature',
+          icon: 'sun',
+          actions: [
+            'Increase irrigation frequency for crops',
+            'Apply mulch to retain soil moisture',
+            'Monitor for heat stress in plants',
+            'Schedule farm work during cooler hours'
+          ]
+        },
+        {
+          condition: 'High Humidity',
+          icon: 'cloud',
+          actions: [
+            'Watch for fungal diseases on crops',
+            'Ensure good air circulation in storage areas',
+            'Apply preventive fungicides if necessary',
+            'Delay irrigation if soil is already moist'
+          ]
+        }
+      ]
     }
   };
 
@@ -125,6 +157,31 @@ const WeatherForecast = () => {
             </Card>
           ))}
         </div>
+
+        {/* Farming Precautions */}
+        {weatherData.precautions && (
+          <>
+            <h3 className="text-xl font-bold mt-8 mb-4">Recommended Precautions</h3>
+            <div className="grid md:grid-cols-3 gap-4">
+              {weatherData.precautions.map((precaution: any, index: number) => (
+                <Card key={index} className="p-5 hover:shadow-lg transition-shadow">
+                  <div className="flex items-center gap-3 mb-4">
+                    {getWeatherIcon(precaution.icon)}
+                    <h4 className="font-semibold text-lg">{precaution.condition}</h4>
+                  </div>
+                  <ul className="space-y-2">
+                    {precaution.actions.map((action: string, idx: number) => (
+                      <li key={idx} className="flex items-start gap-2 text-sm">
+                        <span className="text-primary mt-1">•</span>
+                        <span>{action}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </Card>
+              ))}
+            </div>
+          </>
+        )}
       </Card>
     </div>
   );
