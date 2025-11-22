@@ -83,14 +83,28 @@ serve(async (req) => {
 
     // Generate alerts based on weather conditions
     const alerts = [];
+    const avgRainfall = dailyForecasts.reduce((sum: number, day: any) => sum + day.rainfall, 0) / dailyForecasts.length;
+    
+    // Warning alerts
     if (dailyForecasts.some((day: any) => day.rainfall > 70)) {
-      alerts.push('Heavy rainfall expected in the coming days. Take precautions for standing crops.');
+      alerts.push('⚠️ Heavy rainfall expected in the coming days. Take precautions for standing crops.');
     }
     if (current.temp > 35) {
-      alerts.push('High temperature alert. Ensure adequate irrigation for crops.');
+      alerts.push('⚠️ High temperature alert. Ensure adequate irrigation for crops.');
     }
     if (current.humidity > 80) {
-      alerts.push('High humidity levels. Monitor crops for fungal diseases.');
+      alerts.push('⚠️ High humidity levels. Monitor crops for fungal diseases.');
+    }
+    
+    // Positive alerts when conditions are good
+    if (avgRainfall < 20 && current.temp >= 20 && current.temp <= 32) {
+      alerts.push('✅ Excellent weather conditions! Crops are safe with minimal rain chances and optimal temperatures.');
+    } else if (avgRainfall < 30 && !alerts.some(a => a.includes('⚠️'))) {
+      alerts.push('✅ Good weather ahead! Low rainfall expected - ideal for field activities and crop growth.');
+    }
+    
+    if (current.temp >= 22 && current.temp <= 28 && current.humidity >= 40 && current.humidity <= 70) {
+      alerts.push('✅ Perfect growing conditions with balanced temperature and humidity levels.');
     }
 
     // Generate precautions

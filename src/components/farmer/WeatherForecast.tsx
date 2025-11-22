@@ -162,17 +162,43 @@ const WeatherForecast = () => {
 
         {/* Alerts */}
         {weatherData.alerts && weatherData.alerts.length > 0 && (
-          <Card className="p-4 mb-6 bg-destructive/10 border-destructive/20">
-            <div className="flex items-start gap-3">
-              <AlertTriangle className="w-6 h-6 text-destructive flex-shrink-0" />
-              <div>
-                <h4 className="font-semibold mb-1">Weather Alert</h4>
-                {weatherData.alerts.map((alert: string, index: number) => (
-                  <p key={index} className="text-sm">{alert}</p>
-                ))}
-              </div>
-            </div>
-          </Card>
+          <div className="space-y-3 mb-6">
+            {weatherData.alerts.map((alert: string, index: number) => {
+              const isPositive = alert.includes('✅');
+              const isWarning = alert.includes('⚠️');
+              
+              return (
+                <Card 
+                  key={index} 
+                  className={`p-4 ${
+                    isPositive 
+                      ? 'bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-900' 
+                      : isWarning
+                      ? 'bg-destructive/10 border-destructive/20'
+                      : 'bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-900'
+                  }`}
+                >
+                  <div className="flex items-start gap-3">
+                    {isPositive ? (
+                      <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+                        <span className="text-white text-sm">✓</span>
+                      </div>
+                    ) : isWarning ? (
+                      <AlertTriangle className="w-6 h-6 text-destructive flex-shrink-0" />
+                    ) : (
+                      <CloudRain className="w-6 h-6 text-blue-500 flex-shrink-0" />
+                    )}
+                    <div>
+                      <h4 className="font-semibold mb-1">
+                        {isPositive ? 'Good News' : isWarning ? 'Weather Alert' : 'Weather Update'}
+                      </h4>
+                      <p className="text-sm">{alert.replace(/[⚠️✅]/g, '').trim()}</p>
+                    </div>
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
         )}
 
         {/* 7-Day Forecast */}
