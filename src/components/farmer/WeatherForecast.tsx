@@ -2,69 +2,61 @@ import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { CloudRain, Cloud, Sun, Wind, Droplets, AlertTriangle } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { CloudRain, Cloud, Sun, Wind, Droplets, AlertTriangle, Search } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 const WeatherForecast = () => {
-  const [region, setRegion] = useState('punjab');
+  const [region, setRegion] = useState('Punjab');
+  const [customLocation, setCustomLocation] = useState('');
   const [weatherData, setWeatherData] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
-  const mockWeatherData = {
-    punjab: {
-      current: {
-        temp: 28,
-        condition: 'Partly Cloudy',
-        humidity: 65,
-        wind: 12,
-        rainfall: 20
-      },
-      forecast: [
-        { day: 'Today', temp: 28, condition: 'Partly Cloudy', rainfall: 20, icon: 'cloud' },
-        { day: 'Tomorrow', temp: 26, condition: 'Light Rain', rainfall: 60, icon: 'rain' },
-        { day: 'Day 3', temp: 24, condition: 'Rain', rainfall: 80, icon: 'rain' },
-        { day: 'Day 4', temp: 25, condition: 'Cloudy', rainfall: 40, icon: 'cloud' },
-        { day: 'Day 5', temp: 27, condition: 'Sunny', rainfall: 10, icon: 'sun' },
-        { day: 'Day 6', temp: 29, condition: 'Sunny', rainfall: 5, icon: 'sun' },
-        { day: 'Day 7', temp: 30, condition: 'Hot & Sunny', rainfall: 0, icon: 'sun' }
-      ],
-      alerts: ['Heavy rainfall expected on Day 3. Take precautions for standing crops.'],
-      precautions: [
-        {
-          condition: 'Heavy Rain',
-          icon: 'rain',
-          actions: [
-            'Ensure proper drainage in fields to prevent waterlogging',
-            'Harvest mature crops before rain if possible',
-            'Cover stored grains and equipment',
-            'Check irrigation channels for blockages'
-          ]
-        },
-        {
-          condition: 'High Temperature',
-          icon: 'sun',
-          actions: [
-            'Increase irrigation frequency for crops',
-            'Apply mulch to retain soil moisture',
-            'Monitor for heat stress in plants',
-            'Schedule farm work during cooler hours'
-          ]
-        },
-        {
-          condition: 'High Humidity',
-          icon: 'cloud',
-          actions: [
-            'Watch for fungal diseases on crops',
-            'Ensure good air circulation in storage areas',
-            'Apply preventive fungicides if necessary',
-            'Delay irrigation if soil is already moist'
-          ]
-        }
-      ]
+  useEffect(() => {
+    fetchWeatherData(region);
+  }, []);
+
+  const fetchWeatherData = async (location: string) => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('get-weather', {
+        body: { location }
+      });
+
+      if (error) throw error;
+
+      setWeatherData(data);
+      toast({
+        title: "Weather data updated",
+        description: `Showing weather for ${location}`,
+      });
+    } catch (error) {
+      console.error('Error fetching weather:', error);
+      toast({
+        title: "Error fetching weather",
+        description: "Failed to load weather data. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
-  useEffect(() => {
-    setWeatherData(mockWeatherData[region as keyof typeof mockWeatherData] || mockWeatherData.punjab);
-  }, [region]);
+  const handleRegionChange = (value: string) => {
+    setRegion(value);
+    setCustomLocation('');
+    fetchWeatherData(value);
+  };
+
+  const handleCustomSearch = () => {
+    if (customLocation.trim()) {
+      fetchWeatherData(customLocation);
+      setRegion('custom');
+    }
+  };
 
   const getWeatherIcon = (icon: string) => {
     switch (icon) {
@@ -75,7 +67,29 @@ const WeatherForecast = () => {
     }
   };
 
-  if (!weatherData) return null;
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <Card className="p-6">
+          <div className="flex items-center justify-center h-64">
+            <p className="text-muted-foreground">Loading weather data...</p>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
+  if (!weatherData) {
+    return (
+      <div className="space-y-6">
+        <Card className="p-6">
+          <div className="flex items-center justify-center h-64">
+            <p className="text-muted-foreground">No weather data available</p>
+          </div>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -85,18 +99,38 @@ const WeatherForecast = () => {
           Weather Forecast
         </h2>
 
-        <div className="mb-6">
-          <Label>Select Region</Label>
-          <Select value={region} onValueChange={setRegion}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="punjab">Punjab</SelectItem>
-              <SelectItem value="haryana">Haryana</SelectItem>
-              <SelectItem value="up">Uttar Pradesh</SelectItem>
-            </SelectContent>
-          </Select>
+        <div className="grid md:grid-cols-2 gap-4 mb-6">
+          <div>
+            <Label>Select Region</Label>
+            <Select value={region} onValueChange={handleRegionChange}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Punjab">Punjab</SelectItem>
+                <SelectItem value="Haryana">Haryana</SelectItem>
+                <SelectItem value="Uttar Pradesh">Uttar Pradesh</SelectItem>
+                <SelectItem value="Maharashtra">Maharashtra</SelectItem>
+                <SelectItem value="Karnataka">Karnataka</SelectItem>
+                <SelectItem value="Tamil Nadu">Tamil Nadu</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label>Or Enter Custom Location</Label>
+            <div className="flex gap-2">
+              <Input
+                placeholder="Enter city name"
+                value={customLocation}
+                onChange={(e) => setCustomLocation(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleCustomSearch()}
+              />
+              <Button onClick={handleCustomSearch} size="icon">
+                <Search className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
         </div>
 
         {/* Current Weather */}
@@ -152,7 +186,7 @@ const WeatherForecast = () => {
               <p className="text-xs text-muted-foreground mb-1">{day.condition}</p>
               <div className="flex items-center justify-center gap-1 text-xs text-blue-600">
                 <Droplets className="w-3 h-3" />
-                <span>{day.rainfall}%</span>
+                <span>{Math.round(day.rainfall)}%</span>
               </div>
             </Card>
           ))}
